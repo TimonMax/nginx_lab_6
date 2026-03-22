@@ -1,19 +1,19 @@
 <?php return array(
     'root' => array(
-        'name' => '79211/nginx_lab_4',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
+        'name' => '79211/nginx_lab_6',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => '84ae523d2a3e44148be50ef6e610955839bbcca1',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
-        '79211/nginx_lab_4' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
+        '79211/nginx_lab_6' => array(
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '84ae523d2a3e44148be50ef6e610955839bbcca1',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

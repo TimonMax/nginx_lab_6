@@ -1,83 +1,111 @@
 <?php
-// www/index.php
-session_start();
+
+require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/db.php';
-require_once __DIR__ . '/RepairRequest.php';
 
-$req = new RepairRequest($pdo);
-$all = $req->getAll();
+use App\ClickhouseExample;
 
-$errors = $_SESSION['errors'] ?? null;
-$success = $_SESSION['success'] ?? null;
-$old = $_SESSION['old'] ?? null;
-unset($_SESSION['errors'], $_SESSION['success'], $_SESSION['old']);
+function e($value): string
+{
+    return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+$error = null;
+$data = [
+    'totalVisits' => 0,
+    'avgDuration' => 0,
+    'bySource' => [],
+    'recent' => [],
+];
+
+try {
+    $clickhouse = new ClickhouseExample();
+    $clickhouse->init();
+    $clickhouse->seed();
+    $data = $clickhouse->dashboard();
+} catch (\Throwable $e) {
+    $error = $e->getMessage();
+}
 ?>
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <title>Заявки — ремонт техники</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <style>
-    body{font-family:Arial,Helvetica,sans-serif;padding:18px}
-    table{border-collapse:collapse;width:100%}
-    th,td{border:1px solid #ddd;padding:8px}
-    a.action { margin-right:8px; }
-  </style>
+    <meta charset="utf-8">
+    <title>ЛР6 — ClickHouse аналитика</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; max-width: 1100px; margin: 0 auto; padding: 20px; }
+        .box { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 14px 0; background: #fafafa; }
+        .error { color: #b00; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .metric { font-size: 28px; font-weight: bold; }
+        .label { color: #666; font-size: 14px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #f0f0f0; }
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-  <h1>Заявки на ремонт</h1>
+    <h1>Лабораторная работа №6 — ClickHouse</h1>
 
-  <?php if ($errors): ?>
-    <div style="color:#900;background:#fee;padding:8px;border-radius:6px"><strong>Ошибки:</strong>
-      <ul><?php foreach ($errors as $e): ?><li><?= htmlspecialchars($e) ?></li><?php endforeach; ?></ul>
+    <?php if ($error): ?>
+        <div class="box error">
+            <strong>Ошибка:</strong> <?= e($error) ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="grid">
+        <div class="box">
+            <div class="label">Всего визитов</div>
+            <div class="metric"><?= e($data['totalVisits']) ?></div>
+        </div>
+        <div class="box">
+            <div class="label">Средняя длительность</div>
+            <div class="metric"><?= e($data['avgDuration']) ?></div>
+        </div>
     </div>
-  <?php endif; ?>
 
-  <?php if ($success): ?>
-    <div style="color:#060;background:#efe;padding:8px;border-radius:6px"><?= htmlspecialchars($success) ?></div>
-  <?php endif; ?>
+    <div class="box">
+        <h2>Аналитика по источникам</h2>
+        <table>
+            <tr>
+                <th>Источник</th>
+                <th>Визиты</th>
+                <th>Средняя длительность</th>
+            </tr>
+            <?php foreach ($data['bySource'] as $row): ?>
+                <tr>
+                    <td><?= e($row['source'] ?? '') ?></td>
+                    <td><?= e($row['visits'] ?? '') ?></td>
+                    <td><?= e($row['avg_duration'] ?? '') ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    </div>
 
-  <p><a href="form.html">Создать новую заявку</a></p>
-
-  <h2>Сохранённые заявки</h2>
-  <?php if (empty($all)): ?>
-    <p>Записей пока нет.</p>
-  <?php else: ?>
-    <table>
-      <tr>
-        <th>#</th>
-        <th>Имя</th>
-        <th>Модель</th>
-        <th>Email</th>
-        <th>Услуга</th>
-        <th>Гарантия</th>
-        <th>Срок</th>
-        <th>Время</th>
-        <th>Действия</th>
-      </tr>
-      <?php foreach ($all as $r): ?>
-        <tr>
-          <td><?= htmlspecialchars($r['id']) ?></td>
-          <td><?= htmlspecialchars($r['name']) ?></td>
-          <td><?= htmlspecialchars($r['model']) ?></td>
-          <td><?= htmlspecialchars($r['email']) ?></td>
-          <td><?= htmlspecialchars($r['service']) ?></td>
-          <td><?= $r['warranty'] ? 'Да' : 'Нет' ?></td>
-          <td><?= htmlspecialchars($r['term']) ?></td>
-          <td><?= htmlspecialchars($r['created_at']) ?></td>
-          <td>
-            <a class="action" href="edit.php?id=<?= urlencode($r['id']) ?>">Редактировать</a>
-            <a class="action" href="delete.php?id=<?= urlencode($r['id']) ?>"
-               onclick="return confirm('Удалить запись #<?= htmlspecialchars($r['id']) ?>?')">Удалить</a>
-          </td>
-        </tr>
-      <?php endforeach; ?>
-    </table>
-  <?php endif; ?>
-
-  <?php if (!empty($_COOKIE['last_submission'])): ?>
-    <p><b>Последняя отправка (cookie):</b> <?= htmlspecialchars($_COOKIE['last_submission']) ?></p>
-  <?php endif; ?>
+    <div class="box">
+        <h2>Последние записи</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Дата</th>
+                <th>Источник</th>
+                <th>Страница</th>
+                <th>Длительность</th>
+            </tr>
+            <?php foreach ($data['recent'] as $row): ?>
+                <tr>
+                    <td><?= e($row['id'] ?? '') ?></td>
+                    <td><?= e($row['visit_date'] ?? '') ?></td>
+                    <td><?= e($row['source'] ?? '') ?></td>
+                    <td><?= e($row['page'] ?? '') ?></td>
+                    <td><?= e($row['duration'] ?? '') ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    </div>
 </body>
 </html>

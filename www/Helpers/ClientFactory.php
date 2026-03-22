@@ -13,6 +13,7 @@ class ClientFactory
             'timeout' => 5.0,
             'connect_timeout' => 3.0,
             'http_errors' => false,
+            'auth' => [CLICKHOUSE_USER, CLICKHOUSE_PASSWORD],
         ]);
     }
 }

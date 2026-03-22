@@ -19,9 +19,6 @@ services:
       - "9000"
     depends_on:
       - clickhouse
-    networks:
-      - default_network
-
 
   clickhouse:
     image: clickhouse/clickhouse-server
@@ -31,14 +28,11 @@ services:
       - "9000:9000"
     volumes:
       - clickhouse_data:/var/lib/clickhouse
-    networks:
-      - default_network
+    environment:
+      CLICKHOUSE_DB: lab6
+      CLICKHOUSE_USER: lab6_user
+      CLICKHOUSE_PASSWORD: lab6_pass
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
 
-
-networks:
- default_network:
-   driver: bridge
-
-# Чтобы сохранялось между перезапусками
 volumes:
   clickhouse_data:

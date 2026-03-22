@@ -1,4 +1,4 @@
-# Лабораторная работа №5: Работа с MySQL через PHP и Docker
+# Лабораторная работа №6: Работа с ClickHouse через PHP и Docker
 
 
 ## 👩‍💻 Автор
@@ -8,12 +8,13 @@
 ---
 
 ## 📌 Описание задания
-1. Научиться работать с базой данных MySQL через PHP.
-2. Создать таблицу для данных формы.
-3. Сохранять данные формы в базу данных.
-4. Выводить данные из базы на странице.
-5. Использовать классы PHP для работы с таблицей.
-6. Работать с Docker контейнерами: nginx (уже есть), PHP-FPM, MySQL, Adminer.
+1. Изучить работу с нереляционной базой данных ClickHouse.
+2. Научиться отправлять SQL-запросы через HTTP API с помощью Guzzle.
+3. Создать таблицу для аналитических данных.
+4. Сохранять и инициализировать тестовые данные в ClickHouse.
+5. Выводить агрегированную статистику на странице.
+6. Использовать классы PHP для работы с ClickHouse.
+7. Работать с Docker-контейнерами: nginx, PHP-FPM и ClickHouse.
 http://localhost:8080
 
 ---
@@ -22,8 +23,8 @@ http://localhost:8080
 
 ### 1. Клонировать репозиторий
 ```bash
-git clone https://github.com/TimonMax/nginx_lab_5.git
-cd nginx_lab_5
+git clone https://github.com/TimonMax/nginx_lab_6.git
+cd nginx_lab_6
 ```
 ### 2. Запустить контейнеры Docker
 ```bash
@@ -33,32 +34,25 @@ docker-compose up -d --build
 ```bash
 http://localhost:8080
 ```
-### 4. Проверка работы
-1. Форма для заполнения
-2. Просморт заявок
-3. Adminer
+### 4. Проверка работы ClickHouse
 ```bash
-http://localhost:8080/form.html
-http://localhost:8080/index.php
-http://localhost:8081
+http://localhost:8123/ping
 ```
 ## Содержимое проекта
 ```docker-compose.yml``` — описание сервиса Nginx
 
 ```Dockerfile``` — параметры для запуска
 
-```www/form.html``` — главная HTML-страница с формой
+```www/composer.json``` — зависимости проекта и автозагрузка классов
 
-```www/index.php``` — подключает form.html
+```www/composer.lock``` — зафиксированные версии зависимостей
 
-```www/process.php``` — серверный обработчик: валидация, сессия, запись в БД
+```www/db.php``` — константы для ДБ
 
-```www/db.php``` — База данных
+```www/index.php``` — главная страница
 
 ```nginx/default.conf``` — файл для обработки PHP
 
-```www/RepairRequest.php``` — класс заявки
+```www/Helpers/ClientFactory.php`` — фабрика
 
-```www/delete.php``` — удаление записи
-
-```www/edit.php``` — редактирование имени записи
+```www/ClickhouseExample.php``` — класс для работы с ClickHouse
