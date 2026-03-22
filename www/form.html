@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Заявка на ремонт техники</title>
+  <style> form{width:320px;margin:30px auto;padding:20px;border:1px solid #ccc;border-radius:6px} input,select,button{width:100%;padding:6px;margin:6px 0;box-sizing:border-box} </style>
+</head>
+<body>
+  <form id="myForm" action="process.php" method="POST" novalidate>
+    <input type="text" name="name" placeholder="Имя" required />
+    <input type="text" name="model" placeholder="Модель (марка/модель)" required />
+    <input type="email" name="email" placeholder="Email (необязательно)" />
+    <select name="service">
+      <option value="diagnostics">Диагностика</option>
+      <option value="screen">Замена экрана</option>
+      <option value="battery">Замена батареи</option>
+      <option value="board">Ремонт платы</option>
+    </select>
+    <label><input type="checkbox" name="warranty" /> Гарантия есть</label>
+    <div>
+      <label><input type="radio" name="term" value="1-3" checked /> 1—3 дня</label><br/>
+      <label><input type="radio" name="term" value="3-7" /> 3—7 дней</label>
+    </div>
+    <button type="submit">Отправить</button>
+  </form>
+</body>
+</html>
