@@ -1,21 +1,5 @@
 <?php
 
-$host = 'db';
-$db   = 'lab5_db';
-$user = 'lab5_user';
-$pass = 'lab5_pass';
-$charset = 'utf8mb4';
-
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-$options = [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES => false,
-];
-
-try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (\PDOException $e) {
-    echo "Ошибка подключения: " . htmlspecialchars($e->getMessage());
-    exit();
-}
+define('CLICKHOUSE_BASE_URI', 'http://clickhouse:8123/');
+define('CLICKHOUSE_DB', 'lab6');
+define('CLICKHOUSE_TABLE', 'visits');
